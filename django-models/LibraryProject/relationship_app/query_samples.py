@@ -32,7 +32,7 @@ def librarian_for_library(library_name):
     """Retrieve the librarian of a specific library."""
     try:
         library = Library.objects.get(name=library_name)
-        librarian = library.librarian
+        librarian = Librarian.objects.get(library=library)
         print(f"Librarian of {library_name} Library: {librarian.name}")
     except Library.DoesNotExist:
         print("Library not found.")
