@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.detail import DetailView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
-from django.contrib.auth.decorators import user_passes_test
-from .models import Book, Library
+from django.contrib.auth.decorators import user_passes_test, permission_required
+from django.http import HttpResponse
+
+from .models import Book, Library, Author
 
 
 # ---------------------------
@@ -31,7 +33,7 @@ def register_view(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # Auto-login after registration
+            login(request, user)
             return redirect('list_books')
     else:
         form = UserCreationForm()
@@ -73,3 +75,10 @@ def librarian_view(request):
 def member_view(request):
     """Accessible only to Member users."""
     return render(request, 'relationship_app/member_view.html')
+
+
+# ==========================================
+# CUSTOM PERMISSION-BASED BOOK OPERATIONS
+# ==========================================
+
+# --- Add Book (requires custom permission)
