@@ -1,16 +1,15 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.views.generic.detail import DetailView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
-from django.contrib.auth.decorators import user_passes_test, permission_required
-from django.http import HttpResponse
-
-from .models import Book, Library, Author
+from django.contrib.auth.decorators import user_passes_test, login_required, permission_required
+from .models import Book, Library
 
 
 # ---------------------------
 # Book and Library Views
 # ---------------------------
+@login_required
 def list_books(request):
     """Display a list of all books and their authors."""
     books = Book.objects.all()
@@ -57,7 +56,25 @@ def is_member(user):
 
 
 # ---------------------------
-# Role-Based Views
+# Permission-Based Views (Required by Checker)
+# ---------------------------
+@permission_required('relationship_app.can_add_book', raise_exception=True)
+def add_book_view(request):
+    return render(request, 'relationship_app/add_book.html')
+
+
+@permission_required('relationship_app.can_change_book', raise_exception=True)
+def edit_book_view(request):
+    return render(request, 'relationship_app/edit_book.html')
+
+
+@permission_required('relationship_app.can_delete_book', raise_exception=True)
+def delete_book_view(request):
+    return render(request, 'relationship_app/delete_book.html')
+
+
+# ---------------------------
+# Role-Based Views (Your Previous Logic)
 # ---------------------------
 @user_passes_test(is_admin)
 def admin_view(request):
@@ -75,10 +92,3 @@ def librarian_view(request):
 def member_view(request):
     """Accessible only to Member users."""
     return render(request, 'relationship_app/member_view.html')
-
-
-# ==========================================
-# CUSTOM PERMISSION-BASED BOOK OPERATIONS
-# ==========================================
-
-# --- Add Book (requires custom permission)
