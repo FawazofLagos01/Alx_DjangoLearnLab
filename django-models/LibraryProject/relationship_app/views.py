@@ -3,8 +3,8 @@ from django.views.generic.detail import DetailView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import user_passes_test
-from .models import Book
-from .models import Library
+from .models import Book, Library
+
 
 # ---------------------------
 # Book and Library Views
@@ -31,26 +31,32 @@ def register_view(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # auto-login after registration
-            return redirect('list_books')  # redirect after registration
+            login(request, user)  # Auto-login after registration
+            return redirect('list_books')
     else:
         form = UserCreationForm()
+
     return render(request, 'relationship_app/register.html', {'form': form})
 
 
 # ---------------------------
-# Role-Based Access Views
+# Role-Based Access Control
 # ---------------------------
 def is_admin(user):
     return hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
 
+
 def is_librarian(user):
-    return hasattr(user, 'userprofile') and user.userprofile.role == 'Librarians'
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Librarian'
+
 
 def is_member(user):
     return hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
 
 
+# ---------------------------
+# Role-Based Views
+# ---------------------------
 @user_passes_test(is_admin)
 def admin_view(request):
     """Accessible only to Admin users."""
