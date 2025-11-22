@@ -5,6 +5,9 @@ from . import views
 from .views import list_books
 from .views import LibraryDetailView
 from .views import register
+from .views import admin_view
+from .views import librarian_view
+from .views import member_view
 
 
 urlpatterns = [

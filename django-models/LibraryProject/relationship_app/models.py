@@ -3,41 +3,25 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-
-# -----------------------------
-# USER PROFILE WITH ROLE SYSTEM
-# -----------------------------
 class UserProfile(models.Model):
-    ROLE_CHOICES = [
+    ROLE_CHOICES = (
         ('Admin', 'Admin'),
         ('Librarian', 'Librarian'),
         ('Member', 'Member'),
-    ]
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.CharField(
-        max_length=20,
-        choices=ROLE_CHOICES,
-        default='Member'
     )
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Member')
 
     def __str__(self):
         return f"{self.user.username} - {self.role}"
 
-
-# Automatically create UserProfile when a new User is created
+# Signal to create/update user profile automatically
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
+    instance.profile.save()
 
-
-# Save UserProfile whenever User is saved
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    # Only save if profile exists
-    if hasattr(instance, 'userprofile'):
-        instance.userprofile.save()
 
 
 # -----------------------------
