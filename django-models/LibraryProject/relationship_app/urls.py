@@ -28,7 +28,7 @@ urlpatterns = [
 
     path('logout/', LogoutView.as_view(template_name='relationship_app/logout.html'), name='logout'),
 
-    path('register/', register, name='register'),
+    path('register/', views.register, name='register'),
 
     # ---------------------------
     # Role-Based Access URLs
