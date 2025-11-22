@@ -5,8 +5,8 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.decorators import login_required
-from .models import Book, Library
-
+from .models import Book
+from .models import Library
 
 # ---------------------------
 # Book and Library Views
