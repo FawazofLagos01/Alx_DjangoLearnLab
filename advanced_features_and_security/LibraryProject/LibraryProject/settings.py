@@ -140,3 +140,35 @@ SESSION_COOKIE_SECURE = True
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'", 'https://fonts.googleapis.com')  
 CSP_SCRIPT_SRC = ("'self'",)
+
+# ================================
+# 🔐 HTTPS & Security Configuration
+# ================================
+
+# Redirect all HTTP → HTTPS
+SECURE_SSL_REDIRECT = True  # Enforces HTTPS
+
+# HTTP Strict Transport Security (HSTS)
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Secure cookies (only sent over HTTPS)
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Prevent MIME-type sniffing
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Enable browser XSS protection
+SECURE_BROWSER_XSS_FILTER = True
+
+# Prevent site from being embedded in frames (clickjacking protection)
+X_FRAME_OPTIONS = "DENY"
+
+# These settings enforce HTTPS and secure communication.
+# SECURE_SSL_REDIRECT forces HTTPS.
+# HSTS settings (Strict-Transport-Security) tell browsers to ONLY use HTTPS.
+# Secure cookies ensure SESSION and CSRF cookies are never sent over HTTP.
+# X_FRAME_OPTIONS protects against clickjacking.
+# SECURE_BROWSER_XSS_FILTER and SECURE_CONTENT_TYPE_NOSNIFF help prevent XSS attacks.

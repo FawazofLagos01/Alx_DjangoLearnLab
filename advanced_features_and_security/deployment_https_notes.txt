@@ -1,0 +1,19 @@
+To deploy the Django project using HTTPS, configure SSL/TLS certificates on the hosting server.
+
+For Nginx:
+- Install certbot
+- Run: sudo certbot --nginx -d yourdomain.com
+- Ensure the Nginx config includes:
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+
+For Apache:
+- Enable SSL: a2enmod ssl
+- Install certbot and run: sudo certbot --apache
+- Ensure VirtualHost includes:
+    SSLEngine On
+    SSLCertificateFile /etc/letsencrypt/live/yourdomain.com/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/yourdomain.com/privkey.pem
+
+These steps complete HTTPS deployment for Django.
