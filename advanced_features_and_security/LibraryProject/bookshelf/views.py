@@ -27,3 +27,13 @@ def book_delete(request, book_id):
     book.delete()
     # Redirect after deletion
     pass
+
+def search_books(request):
+    # Validate input to prevent SQL injection
+    query = request.GET.get("q", "")
+    safe_query = query.strip()
+
+    # Use Django ORM (ORM is SQL-injection safe)
+    books = Book.objects.filter(title__icontains=safe_query)
+
+    return render(request, "bookshelf/book_list.html", {"books": books, "query": safe_query})

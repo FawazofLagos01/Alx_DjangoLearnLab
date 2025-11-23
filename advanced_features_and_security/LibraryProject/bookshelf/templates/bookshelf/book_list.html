@@ -1,0 +1,25 @@
+<form method="GET" action="{% url 'search_books' %}">
+    <input type="text" name="q" placeholder="Search books" value="{{ query }}">
+    <button type="submit">Search</button>
+</form>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book List</title>
+</head>
+<body>
+
+<h1>Book List</h1>
+
+<ul>
+    {% for book in books %}
+        <li>{{ book.title }} - {{ book.author }} ({{ book.publication_year }})</li>
+    {% empty %}
+        <li>No books available.</li>
+    {% endfor %}
+</ul>
+
+</body>
+</html>
+
