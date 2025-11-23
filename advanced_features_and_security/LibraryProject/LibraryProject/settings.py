@@ -166,6 +166,14 @@ SECURE_BROWSER_XSS_FILTER = True
 # Prevent site from being embedded in frames (clickjacking protection)
 X_FRAME_OPTIONS = "DENY"
 
+# ================================
+# 🔐 HTTPS behind a proxy
+# ================================
+
+# Tells Django the request is secure when the X-Forwarded-Proto header is set to 'https'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
 # These settings enforce HTTPS and secure communication.
 # SECURE_SSL_REDIRECT forces HTTPS.
 # HSTS settings (Strict-Transport-Security) tell browsers to ONLY use HTTPS.
