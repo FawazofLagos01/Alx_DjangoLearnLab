@@ -1,7 +1,10 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics, filters
+from rest_framework import status
+from rest_framework import generics
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
