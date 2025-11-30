@@ -1,7 +1,9 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import APIView
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer
@@ -64,3 +66,28 @@ class BookDetailView(APIView):
         book = get_object_or_404(Book, pk=pk)
         serializer = BookSerializer(book)
         return Response(serializer.data)
+    
+class BookListCreateView(generics.ListCreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class BookDetailView(generics.RetrieveAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class BookCreateView(generics.CreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+
+class BookUpdateView(generics.UpdateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+
+class BookDeleteView(generics.DestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
