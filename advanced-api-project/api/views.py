@@ -2,9 +2,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import generics
+from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -53,6 +53,13 @@ class DRFBookListCreateView(generics.ListCreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+
+    filterset_fields = ['title', 'publication_year', 'author__name']
+    search_fields = ['title', 'author__name']
+    ordering_fields = ['publication_year', 'title']
+    ordering = ['title']
 
 class DRFBookDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Book.objects.all()

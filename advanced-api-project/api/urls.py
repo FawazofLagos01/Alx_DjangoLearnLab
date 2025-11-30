@@ -7,13 +7,13 @@ urlpatterns = [
     path('authors/<int:pk>/', views.AuthorDetailView.as_view(), name='author-detail'),
 
     # Book endpoints
-    path('books/', views.BookListCreateView.as_view(), name='book-list'),
-    path('books/<int:pk>/', views.BookDetailView.as_view(), name='book-detail'),
+    path('books/', views.DRFBookListCreateView.as_view(), name='book-list'),
+    path('books/<int:pk>/', views.DRFBookDetailView.as_view(), name='book-detail'),
 
     # Create Book
-    path('books/create/', views.BookCreateView.as_view(), name='book-create'),
+    path('books/create/', views.DRFBookCreateView.as_view(), name='book-create'),
 
     # REQUIRED EXACTLY AS THE CHECKER WANTS
-    path('books/update/<int:pk>/', views.BookUpdateView.as_view(), name='book-update'),
-    path('books/delete/<int:pk>/', views.BookDeleteView.as_view(), name='book-delete'),
+    path('books/update/<int:pk>/', views.DRFBookUpdateView.as_view(), name='book-update'),
+    path('books/delete/<int:pk>/', views.DRFBookDeleteView.as_view(), name='book-delete'),
 ]
