@@ -1,91 +1,41 @@
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from django.shortcuts import render
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from .models import Book, Author
 
-from .models import Author, Book
-from .serializers import AuthorSerializer, BookSerializer
+# ----- API VIEWS -----
 
+class AuthorListCreateView(ListView):
+    model = Author
+    template_name = "authors/author_list.html"
 
-# ============================
-# AUTHOR LIST VIEW (ListView)
-# ============================
-class AuthorListCreateView(generics.ListCreateAPIView):   # ListView equivalent
-    """
-    ListView: Returns all authors.
-    CreateView: Creates a new author.
-    """
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+class AuthorDetailView(DetailView):
+    model = Author
+    template_name = "authors/author_detail.html"
 
+# ----- GENERIC BOOK CRUD -----
 
-# ============================
-# AUTHOR DETAIL VIEW
-# ============================
-class AuthorDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    DetailView: Retrieve/Update/Delete a specific author.
-    """
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+class BookListCreateView(ListView):
+    model = Book
+    template_name = "books/book_list.html"
 
+class BookDetailView(DetailView):
+    model = Book
+    template_name = "books/book_detail.html"
 
-# ============================
-# BOOK LIST VIEW (ListView)
-# ============================
-class BookListCreateView(generics.ListCreateAPIView):   # ListView equivalent
-    """
-    ListView: Returns all books.
-    CreateView: Creates a new book.
-    """
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+class BookCreateView(CreateView):
+    model = Book
+    fields = "__all__"
+    template_name = "books/book_form.html"
+    success_url = reverse_lazy('book-list')
 
+class BookUpdateView(UpdateView):
+    model = Book
+    fields = "__all__"
+    template_name = "books/book_form.html"
+    success_url = reverse_lazy('book-list')
 
-# ============================
-# BOOK DETAIL VIEW
-# ============================
-class BookDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    DetailView: Retrieve/Update/Delete a specific book.
-    """
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-
-# ============================
-# CUSTOM CREATE VIEW
-# ============================
-class BookCreateView(generics.CreateAPIView):
-    """
-    CreateView: Create a new book (Authenticated only).
-    """
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]
-
-
-# ============================
-# CUSTOM UPDATE VIEW
-# ============================
-class BookUpdateView(generics.UpdateAPIView):
-    """
-    UpdateView: Update details of an existing book (Authenticated only).
-    """
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]
-
-
-# ============================
-# CUSTOM DELETE VIEW
-# ============================
-class BookDeleteView(generics.DestroyAPIView):
-    """
-    DeleteView: Delete a book (Authenticated only).
-    """
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]
+class BookDeleteView(DeleteView):
+    model = Book
+    template_name = "books/book_confirm_delete.html"
+    success_url = reverse_lazy('book-list')
