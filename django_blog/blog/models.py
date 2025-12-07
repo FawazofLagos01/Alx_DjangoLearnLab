@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Post(models.Model):
     title = models.CharField(max_length=200)
@@ -10,4 +12,20 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
-# Create your models here.
+def avatar_upload_path(instance, filename):
+    return f'avatars/user_{instance.user.id}/{filename}'
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    bio = models.TextField(blank=True)
+    avatar = models.ImageField(upload_to=avatar_upload_path, blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.user.username} Profile'
+    
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+    else:
+        instance.profile.save()
