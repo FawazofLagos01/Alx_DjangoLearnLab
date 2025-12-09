@@ -136,16 +136,18 @@ class TagListView(ListView):
         context['tag_name'] = self.kwargs.get('tag_name')
         return context
     
-    def search(request):
-        query = request.GET.get('q', '').strip()
-        posts = Post.objects.none()
+def search(request):
+        query = request.GET.get("q")
+        results = []
+
         if query:
             posts = Post.objects.filter(
                 Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query)
             ).distinct().order_by('-published_date')
+
         context = {
-            'posts': posts,
             'query': query,
+            'results': results
         }
         return render(request, 'blog/search_results.html', context)
     
