@@ -5,9 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
+from django.db.models import Q
+from taggit.models import Tag
+
 from .models import Post, Comment
 from .forms import RegisterForm, UserUpdateForm, ProfileForm, PostForm, CommentForm
-from django.db.models import Q
 
 # -------------------
 # User Authentication
@@ -19,7 +21,7 @@ def register(request):
             user = form.save()
             login(request, user)
             messages.success(request, 'Registration successful. Welcome!')
-            return redirect('post_list')
+            return redirect('home')
     else:
         form = RegisterForm()
     return render(request, 'blog/register.html', {'form': form})
@@ -76,7 +78,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/post_confirm_delete.html'
-    success_url = reverse_lazy('post_list')
+    success_url = reverse_lazy('home')
 
     def test_func(self):
         post = self.get_object()
@@ -92,11 +94,11 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        form.instance.post_id = self.kwargs['post_pk']
+        form.instance.post_id = self.kwargs['pk']
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('post_detail', kwargs={'pk': self.kwargs['post_pk']})
+        return reverse_lazy('post-detail', kwargs={'pk': self.kwargs['pk']})
 
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
@@ -108,7 +110,7 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user == comment.author
 
     def get_success_url(self):
-        return reverse_lazy('post_detail', kwargs={'pk': self.object.post.pk})
+        return reverse_lazy('post-detail', kwargs={'pk': self.object.post.pk})
 
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
@@ -119,40 +121,41 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == comment.author
 
     def get_success_url(self):
-        return reverse_lazy('post_detail', kwargs={'pk': self.object.post.pk})
+        return reverse_lazy('post-detail', kwargs={'pk': self.object.post.pk})
 
-class TagListView(ListView):
+# -------------------
+# Tag View (REQUIRED)
+# -------------------
+class PostByTagListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'
     context_object_name = 'posts'
     paginate_by = 10
 
     def get_queryset(self):
-        tag_name = self.kwargs.get('tag_name')
-        return Post.objects.filter(tags__name__iexact=tag_name).distinct()
-    
+        self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag_slug'))
+        return Post.objects.filter(tags=self.tag)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['tag_name'] = self.kwargs.get('tag_name')
+        context['tag'] = self.tag
         return context
-    
+
+# -------------------
+# Search Function (FIXED)
+# -------------------
 def search(request):
-        query = request.GET.get("q")
-        results = []
+    query = request.GET.get("q", "")
+    results = []
 
-        if query:
-            posts = Post.objects.filter(
-                Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query)
-            ).distinct().order_by('-published_date')
+    if query:
+        results = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()
 
-        context = {
-            'query': query,
-            'results': results
-        }
-        return render(request, 'blog/search_results.html', context)
-    
-        if query:
-            results = Post.objects.filter(
-                Q(title__icontains=query) | Q(content__icontains=query)
-            ).distinct()
-        return render(request, 'blog/search_results.html', {'results': results, 'query': query})
+    return render(request, 'blog/search_results.html', {
+        'query': query,
+        'results': results
+    })
