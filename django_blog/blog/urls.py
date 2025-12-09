@@ -1,11 +1,14 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from .views import TagListView
 
 urlpatterns = [
     # -------------------
     # Authentication URLs
     # -------------------
+    path('search/', views.search, name='search'),
+    path('tags/<str:tag_name>/', TagListView.as_view(), name='tag-detail'),
     path('register/', views.register, name='register'),
     path('profile/', views.profile, name='profile'),
     path('login/', auth_views.LoginView.as_view(template_name='blog/login.html'), name='login'),

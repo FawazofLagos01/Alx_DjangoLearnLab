@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from .models import Post, Comment
 from .forms import RegisterForm, UserUpdateForm, ProfileForm, PostForm, CommentForm
+from django.db.models import Q
 
 # -------------------
 # User Authentication
@@ -119,3 +120,37 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('post_detail', kwargs={'pk': self.object.post.pk})
+
+class TagListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        tag_name = self.kwargs.get('tag_name')
+        return Post.objects.filter(tags__name__iexact=tag_name).distinct()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag_name'] = self.kwargs.get('tag_name')
+        return context
+    
+    def search(request):
+        query = request.GET.get('q', '').strip()
+        posts = Post.objects.none()
+        if query:
+            posts = Post.objects.filter(
+                Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query)
+            ).distinct().order_by('-published_date')
+        context = {
+            'posts': posts,
+            'query': query,
+        }
+        return render(request, 'blog/search_results.html', context)
+    
+        if query:
+            results = Post.objects.filter(
+                Q(title__icontains=query) | Q(content__icontains=query)
+            ).distinct()
+        return render(request, 'blog/search_results.html', {'results': results, 'query': query})
