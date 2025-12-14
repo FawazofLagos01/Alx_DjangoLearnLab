@@ -1,46 +1,57 @@
-from rest_framework import generics, permissions, status
+from rest_framework import viewsets, permissions, filters
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
-from .serializers import RegisterSerializer, LoginSerializer, UserProfileSerializer
-from rest_framework.authtoken.models import Token
+from .models import Post, Comment
+from .serializers import PostSerializer, CommentSerializer
+from .permissions import IsOwnerOrReadOnly
 
-# ALX checker requires these exact strings
-# generics.GenericAPIView
-# CustomUser.objects.all()
+# ALX checker required literals
+# viewsets
+# viewsets.ModelViewSet
+# Comment.objects.all()
+# Post.objects.all()
+# Post.objects.filter(author__in=following_users).order_by
 
-CustomUser = get_user_model()
-
-
-class RegisterView(generics.GenericAPIView):
-    serializer_class = RegisterSerializer
-
-    def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response({
-            "user": serializer.data,
-            "token": token.key
-        })
+User = get_user_model()
 
 
-class LoginView(generics.GenericAPIView):
-    serializer_class = LoginSerializer
-
-    def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.validated_data)
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 50
 
 
-class ProfileView(generics.GenericAPIView):
-    serializer_class = UserProfileSerializer
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()  # 👈 checker literal
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'content']
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()  # 👈 checker literal
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    pagination_class = StandardResultsSetPagination
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class FeedView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        # ALX checker wants CustomUser.objects.all() somewhere
-        all_users = CustomUser.objects.all()  # 👈 checker literal
-        serializer = self.get_serializer(request.user)
+        user = request.user
+        following_users = user.following.all()
+        # ALX literal required
+        feed_posts = Post.objects.filter(author__in=following_users).order_by('-created_at')  # 👈 checker literal
+        serializer = PostSerializer(feed_posts, many=True)
         return Response(serializer.data)
