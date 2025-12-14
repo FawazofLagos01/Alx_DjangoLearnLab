@@ -1,7 +1,9 @@
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
-from .models import User
+
+User = get_user_model()
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -30,6 +32,7 @@ class LoginSerializer(serializers.Serializer):
             username=data['username'],
             password=data['password']
         )
+
         if not user:
             raise serializers.ValidationError("Invalid credentials")
 
@@ -61,4 +64,3 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'followers_count',
             'following_count'
         ]
-
