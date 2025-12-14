@@ -18,3 +18,12 @@
 - Pagination
 - Search filtering
 
+## Follow / Unfollow Users
+
+- **Follow**: POST /api/accounts/follow/<user_id>/
+- **Unfollow**: POST /api/accounts/unfollow/<user_id>/
+
+## Feed
+
+- **Get Feed**: GET /api/feed/
+- Returns posts from users the current user follows, most recent first.

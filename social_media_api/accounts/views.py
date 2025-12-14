@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import generics, status, permissions
 from .serializers import RegisterSerializer, LoginSerializer, UserProfileSerializer
 
 # Create your views here.
@@ -38,3 +38,25 @@ class ProfileView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class FollowUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, user_id):
+        try:
+            user_to_follow = get_user_model().objects.get(id=user_id)
+            request.user.following.add(user_to_follow)
+            return Response({"message": f"You are now following {user_to_follow.username}."}, status=status.HTTP_200_OK)
+        except get_user_model().DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+class UnfollowUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def delete(self, request, user_id):
+        try:
+            user_to_unfollow = get_user_model().objects.get(id=user_id)
+            request.user.following.remove(user_to_unfollow)
+            return Response({"message": f"You have unfollowed {user_to_unfollow.username}."}, status=status.HTTP_200_OK)
+        except get_user_model().DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
