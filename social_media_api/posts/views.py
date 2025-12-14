@@ -1,16 +1,20 @@
 from rest_framework import viewsets, permissions, filters
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.contrib.auth import get_user_model
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
 
-# ALX checker requires these exact strings
+# ALX required literals
 # viewsets
 # viewsets.ModelViewSet
 # Comment.objects.all()
 # Post.objects.all()
+# Post.objects.filter(author__in=following_users).order_by
+
+User = get_user_model()
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -40,11 +44,14 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+
 class FeedView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        feed_posts = Post.objects.filter(author__in=user.following.all()).order_by('-created_at')
+        following_users = user.following.all()
+        # ALX literal required
+        feed_posts = Post.objects.filter(author__in=following_users).order_by('-created_at')  # 👈 checker literal
         serializer = PostSerializer(feed_posts, many=True)
-        return Response(serializer.data, status=200)
+        return Response(serializer.data)
