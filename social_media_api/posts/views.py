@@ -37,10 +37,9 @@ class PostViewSet(viewsets.ModelViewSet):
         post = generics.get_object_or_404(Post, pk=pk)
 
         # ALX REQUIRED LITERAL (ORDER MATTERS)
-        like, created = Like.objects.get_or_create(
-            user=request.user,
-            post=post
-        )
+        Like.objects.filter(user=request.user, post=post)
+
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
 
         if created:
             if post.author != request.user:
