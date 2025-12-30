@@ -7,11 +7,19 @@ from django.contrib.auth import get_user_model
 
 from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
-from .permissions import IsOwnerOrReadOnly
+from .permissions import IsOwnerOrReadOnly, IsAuthenticated
 from notifications.models import Notification
 
 User = get_user_model()
 
+class FeedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        following_users = request.user.following.all()
+        posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
