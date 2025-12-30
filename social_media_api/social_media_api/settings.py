@@ -27,6 +27,10 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['yourapp.herokuapp.com', '127.0.01', 'localhost']
 
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
 #Security settings for Heroku deployment
 SECURE_SSL_REDIRECT = True
 X_FRAME_OPTIONS = 'DENY'
@@ -38,6 +42,8 @@ SESSION_COOKIE_SECURE = True
 #   Static files settings for Heroku
 STATIC_ROOT = BASE_DIR / 'staticfiles' 
 STATIC_URL = '/static/'
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 #Media files settings for Heroku
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -83,6 +89,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'social_media_api.urls'
