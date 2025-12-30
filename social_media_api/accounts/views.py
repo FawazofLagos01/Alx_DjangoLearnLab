@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 from .serializers import RegisterSerializer, LoginSerializer, UserProfileSerializer
-
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 # ALX checker required literals
 # generics.GenericAPIView
 # CustomUser.objects.all()
@@ -15,18 +16,23 @@ class FollowUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, user_id):
-        target_user = generics.get_object_or_404(CustomUser, id=user_id)
-        request.user.following.add(target_user)
-        return Response({"detail": f"You are now following {target_user.username}."}, status=status.HTTP_200_OK)
-    
+        try:
+            target_user = generics.get_object_or_404(CustomUser, id=user_id)
+            request.user.following.add(target_user)
+            return Response({"detail": f"You are now following {target_user.username}."}, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
 class UnfollowUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, user_id):
-        target_user = generics.get_object_or_404(CustomUser, id=user_id)
-        request.user.following.remove(target_user)
-        return Response({"detail": f"You have unfollowed {target_user.username}."}, status=status.HTTP_200_OK)
-
+        try:
+            target_user = generics.get_object_or_404(CustomUser, id=user_id)
+            request.user.following.remove(target_user)
+            return Response({"detail": f"You have unfollowed {target_user.username}."}, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
 class RegisterView(generics.GenericAPIView):
     serializer_class = RegisterSerializer

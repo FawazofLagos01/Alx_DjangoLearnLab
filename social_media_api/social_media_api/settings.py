@@ -23,9 +23,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-7h0l&5n=%zhw8a(vxg=+v+!!o5tz+w4wmk0cy+u#0=rzcl-^!&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['yourapp.herokuapp.com', '127.0.01', 'localhost']
+
+#Security settings for Heroku deployment
+SECURE_SSL_REDIRECT = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+#   Static files settings for Heroku
+STATIC_ROOT = BASE_DIR / 'staticfiles' 
+STATIC_URL = '/static/'
+
+#Media files settings for Heroku
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
 
 
 # Application definition
@@ -140,3 +156,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
