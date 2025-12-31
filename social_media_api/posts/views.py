@@ -7,7 +7,8 @@ from django.contrib.auth import get_user_model
 
 from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
-from .permissions import IsOwnerOrReadOnly, IsAuthenticated
+from .permissions import IsOwnerOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from notifications.models import Notification
 
 User = get_user_model()
